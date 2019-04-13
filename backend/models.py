@@ -10,8 +10,11 @@ class MosaicModel:
 
     def add_images(self, images_str):
         self.images = images_str.split(',')
-        if self.randomly == 1:
+        if self.randomly == '1':
             shuffle(self.images)
 
-    def add_resolution(self, resolution_str):
-        self.resolution = tuple([int(x) for x in resolution_str.split('x')])
+    def add_resolution(self, res_str):
+        try:
+            self.resolution = tuple([int(x) for x in res_str.split('x')])
+        except ValueError:
+            self.resolution = (2048, 2048)
