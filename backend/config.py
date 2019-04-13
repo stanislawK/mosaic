@@ -1,8 +1,8 @@
-class ProductionConfig(Config):
+class ProductionConfig():
     DEBUG = False
     TESTING = False
 
 
-class DevelopmentConfig(Config):
+class DevelopmentConfig():
     DEBUG = True
     TESTING = True
