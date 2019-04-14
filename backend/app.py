@@ -1,5 +1,4 @@
 from flask import Flask
-from flask_uploads import configure_uploads
 
 from backend.views import mozaika
 
@@ -10,6 +9,7 @@ def create_app():
     app.config.from_object('backend.config.DevelopmentConfig')
 
     register_blueprints(app)
+    configure_uploads(app, IMAGE_SET)
 
     return app
 
