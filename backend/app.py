@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_uploads import configure_uploads
 
 from backend.views import mozaika
 

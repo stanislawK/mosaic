@@ -1,3 +1,6 @@
+import os
+
+
 class ProductionConfig():
     DEBUG = False
     TESTING = False
