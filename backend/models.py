@@ -6,12 +6,12 @@ class MosaicModel:
     def __init__(self, randomly=0, resolution=(2048, 2048)):
         self.randomly = randomly
         self.resolution = resolution
-        self.images = []
+        self.img_urls = []
 
     def add_images(self, images_str):
-        self.images = images_str.split(',')
+        self.img_urls = images_str.split(',')
         if self.randomly == '1':
-            shuffle(self.images)
+            shuffle(self.img_urls)
 
     def add_resolution(self, res_str):
         try:
