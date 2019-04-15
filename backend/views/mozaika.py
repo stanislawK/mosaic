@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 
-from backend.helpers.images import save_images
+from backend.helpers.images import create_mosaic
 from backend.models import MosaicModel
 
 moz_blueprint = Blueprint('mozaika', __name__, url_prefix='/mozaika')
@@ -14,10 +14,10 @@ def mozaika():
 
     new_mosaic = MosaicModel(randomly=randomly)
     new_mosaic.add_images(img_urls)
-    save_images(new_mosaic.img_urls)
-
     if resolution:
         new_mosaic.add_resolution(resolution)
+
+    create_mosaic(new_mosaic.resolution, new_mosaic.img_urls)
 
     return jsonify({"msg": "losowo: {}, rozdzielczosc: {},zdjecia: {}"
                     .format(new_mosaic.randomly,

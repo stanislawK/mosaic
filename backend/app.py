@@ -9,7 +9,6 @@ def create_app():
     app.config.from_object('backend.config.DevelopmentConfig')
 
     register_blueprints(app)
-    configure_uploads(app, IMAGE_SET)
 
     return app
 
