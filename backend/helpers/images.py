@@ -29,6 +29,22 @@ def create_mosaic(size, img_urls):
         i += 1
 
 
+def resize_images(images, size):
+    """Croping and resizing given images to fit single pixel size"""
+    resized = []
+    for image in images:
+        old_width, old_height = image.size
+        if old_width > old_height:
+            diff = int((old_width - old_height)/2)
+            image = image.crop((diff, 0, old_width-diff, old_height))
+        elif old_width < old_height:
+            diff = int((old_height - old_width)/2)
+            image = image.crop((0, diff, old_width, old_height-diff))
+        resized_img = image.resize(size)
+        resized.append(resized_img)
+    return resized
+
+
 def save_images(img_urls):
     for img_url in img_urls:
         name = "base_{}".format(img_urls.index(img_url), 'png')
