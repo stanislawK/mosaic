@@ -10,12 +10,23 @@ def create_mosaic(size, img_urls):
     # Create empty, white imegae bord
     mosaic = Image.new('RGB', size, color='white')
     width, height = size
+    imgs_amount = len(img_urls)
 
     # Count coordinates for left upper corner of every pixel
-    rows = ceil(sqrt(len(img_urls)))
-    pixel_size = int(width/rows), int(height/rows)
-    xes = [i for i in range(0, rows*pixel_size[0], pixel_size[0])]
-    yes = [i for i in range(0, rows*pixel_size[1], pixel_size[1])]
+    if width > height:
+        pixel_side = int(sqrt(width*height/imgs_amount))
+        columns = ceil(width/pixel_side)
+        rows = ceil(imgs_amount/columns)
+    elif width < height:
+        pixel_side = int(sqrt(width*height/imgs_amount))
+        rows = columns = ceil(height/pixel_side)
+        columns = ceil(imgs_amount/rows)
+    else:
+        rows = columns = ceil(sqrt(imgs_amount))
+
+    pixel_side = int(width/columns)
+    xes = [i for i in range(0, columns*pixel_side, pixel_side)]
+    yes = [i for i in range(0, rows*pixel_side, pixel_side)]
     coordinates = []
     for y in yes:
         for x in xes:
@@ -25,8 +36,10 @@ def create_mosaic(size, img_urls):
     img_coord = {}
     i = 0
     while i < len(coordinates):
-        img_coord[coordinates[i]] = img_urls[i % len(img_urls)]
+        img_coord[coordinates[i]] = img_urls[i % imgs_amount]
         i += 1
+
+    return img_coord
 
 
 def resize_images(images, size):
