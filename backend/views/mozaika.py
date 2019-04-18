@@ -17,9 +17,6 @@ def mozaika():
     if resolution:
         new_mosaic.add_resolution(resolution)
 
-    create_mosaic(new_mosaic.resolution, new_mosaic.img_urls)
+    coord = create_mosaic(new_mosaic.resolution, new_mosaic.img_urls)
 
-    return jsonify({"msg": "losowo: {}, rozdzielczosc: {},zdjecia: {}"
-                    .format(new_mosaic.randomly,
-                            new_mosaic.resolution,
-                            new_mosaic.img_urls)}), 200
+    return jsonify({"coordinates": "{}".format(coord)}), 200
