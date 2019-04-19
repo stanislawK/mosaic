@@ -1,3 +1,4 @@
+from flask import send_file
 from io import BytesIO
 from math import ceil, sqrt
 from PIL import Image
@@ -39,28 +40,36 @@ def create_mosaic(size, img_urls):
         img_coord[coordinates[i]] = img_urls[i % imgs_amount]
         i += 1
 
-    return img_coord
+    # Paste images into mosaic
+    pixel_size = pixel_side, pixel_side
+    for pixel in img_coord.items():
+        mosaic.paste(resize_img(pixel[1], pixel_size), pixel[0])
+
+    return mosaic
 
 
-def resize_images(images, size):
-    """Croping and resizing given images to fit single pixel size"""
-    resized = []
-    for image in images:
-        old_width, old_height = image.size
-        if old_width > old_height:
-            diff = int((old_width - old_height)/2)
-            image = image.crop((diff, 0, old_width-diff, old_height))
-        elif old_width < old_height:
-            diff = int((old_height - old_width)/2)
-            image = image.crop((0, diff, old_width, old_height-diff))
-        resized_img = image.resize(size)
-        resized.append(resized_img)
-    return resized
+def resize_img(img_url, size):
+    """Croping and resizing given image to fit single pixel size"""
+    image = upload_img(img_url)
+    old_width, old_height = image.size
+    if old_width > old_height:
+        diff = int((old_width - old_height)/2)
+        image = image.crop((diff, 0, old_width-diff, old_height))
+    elif old_width < old_height:
+        diff = int((old_height - old_width)/2)
+        image = image.crop((0, diff, old_width, old_height-diff))
+    resized_img = image.resize(size, Image.ANTIALIAS)
+    return resized_img
 
 
-def save_images(img_urls):
-    for img_url in img_urls:
-        name = "base_{}".format(img_urls.index(img_url), 'png')
-        req = requests.get(img_url)
-        img = Image.open(BytesIO(req.content))
-        img.save(UPLOAD_PATH.format(name, img.format))
+def upload_img(img_url):
+    req = requests.get(img_url)
+    img = Image.open(BytesIO(req.content))
+    return img
+
+
+def serve_mosaic(mosaic):
+    img_io = BytesIO()
+    mosaic.save(img_io, 'JPEG')
+    img_io.seek(0)
+    return send_file(img_io, mimetype='image/jpeg')
