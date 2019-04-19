@@ -4,7 +4,19 @@ from math import ceil, sqrt
 from PIL import Image
 import requests
 
-UPLOAD_PATH = '/mosaic/backend/static/{}.{}'
+
+def pull_urls(site):
+    """If URL isn't direct image link, pull all image urls from website"""
+    r = requests.get(site)
+    soup = BeautifulSoup(r.text, 'html.parser')
+    img_tags = soup.find_all('img')
+    img_urls = [img.get('src') for img in img_tags]
+
+    # In case of relative image sources
+    for i, url in enumerate(img_urls):
+        if 'http' not in url:
+            img_urls[i] = '{}{}'.format(site, url)
+    return img_urls
 
 
 def create_mosaic(size, img_urls):
