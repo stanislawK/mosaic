@@ -65,14 +65,18 @@ def create_mosaic(size, img_urls):
         pixel_side = int(sqrt(width*height/imgs_amount))
         columns = ceil(width/pixel_side)
         rows = ceil(imgs_amount/columns)
+        pixel_side = int(height/rows)
+        columns = ceil(width/pixel_side)
     elif width < height:
         pixel_side = int(sqrt(width*height/imgs_amount))
         rows = columns = ceil(height/pixel_side)
         columns = ceil(imgs_amount/rows)
+        pixel_side = int(width/columns)
+        rows = ceil(height/pixel_side)
     else:
         rows = columns = ceil(sqrt(imgs_amount))
+        pixel_side = int(width/columns)
 
-    pixel_side = int(width/columns)
     xes = [i for i in range(0, columns*pixel_side, pixel_side)]
     yes = [i for i in range(0, rows*pixel_side, pixel_side)]
     coordinates = []

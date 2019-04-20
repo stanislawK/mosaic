@@ -3,6 +3,8 @@ from flask import Blueprint, jsonify, request
 from backend.helpers.images import create_mosaic, serve_mosaic
 from backend.models import MosaicModel
 
+URL_NOT_FOUND = "Please provide valid URL address with images"
+
 moz_blueprint = Blueprint('mozaika', __name__, url_prefix='/mozaika')
 
 
@@ -13,10 +15,18 @@ def mozaika():
     img_urls = request.args.get('zdjecia')
 
     new_mosaic = MosaicModel(randomly=randomly)
-    new_mosaic.add_images(img_urls)
+
+    if img_urls:
+        new_mosaic.add_images(img_urls)
+    else:
+        return jsonify({"msg": URL_NOT_FOUND}), 404
+
     if resolution:
         new_mosaic.add_resolution(resolution)
 
-    mosaic = create_mosaic(new_mosaic.resolution, new_mosaic.img_urls)
+    try:
+        mosaic = create_mosaic(new_mosaic.resolution, new_mosaic.img_urls)
+        return serve_mosaic(mosaic), 200
 
-    return serve_mosaic(mosaic), 200
+    except TypeError or ZeroDivisionError:
+        return jsonify({"msg": URL_NOT_FOUND}), 404
