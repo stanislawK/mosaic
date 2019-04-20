@@ -1,8 +1,35 @@
-from flask import send_file
 from io import BytesIO
 from math import ceil, sqrt
+from flask import send_file
+from bs4 import BeautifulSoup
 from PIL import Image
 import requests
+
+img_ext = [
+    'BMP',
+    'EPS',
+    'GIF',
+    'ICO',
+    'JPEG',
+    'JPG',
+    'JPE',
+    'PNG',
+    'TIFF',
+    'TIF'
+    ]
+
+
+def check_urls(img_urls):
+    """Check if given URL is direct link to img, or the entire collection"""
+    for i, url in enumerate(img_urls):
+        if url.split('.')[-1].upper() not in img_ext:
+            img_urls.remove(url)
+            new_urls = pull_urls(url)
+            j = i
+            for new_url in new_urls:
+                img_urls.insert(j, new_url)
+                j += 1
+    return img_urls
 
 
 def pull_urls(site):
