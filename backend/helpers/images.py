@@ -2,8 +2,10 @@ from io import BytesIO
 from math import ceil, sqrt
 from flask import send_file
 from bs4 import BeautifulSoup
-from PIL import Image
+from PIL import Image, ImageFile
 import requests
+
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 img_ext = [
     'BMP',
@@ -27,8 +29,11 @@ def check_urls(img_urls):
             new_urls = pull_urls(url)
             j = i
             for new_url in new_urls:
-                img_urls.insert(j, new_url)
-                j += 1
+                if new_url.split('.')[-1].upper() != 'GIF':
+                    img_urls.insert(j, new_url)
+                    j += 1
+        elif url.split('.')[-1].upper() == 'GIF':
+            img_urls.remove(url)
     return img_urls
 
 
@@ -50,6 +55,9 @@ def create_mosaic(size, img_urls):
     # Create empty, white imegae bord
     mosaic = Image.new('RGB', size, color='white')
     width, height = size
+
+    # Pull all images urls if given url is website isted direct link
+    img_urls = check_urls(img_urls)
     imgs_amount = len(img_urls)
 
     # Count coordinates for left upper corner of every pixel
@@ -89,7 +97,7 @@ def create_mosaic(size, img_urls):
 
 def resize_img(img_url, size):
     """Croping and resizing given image to fit single pixel size"""
-    image = upload_img(img_url)
+    image = upload_img(img_url, size)
     old_width, old_height = image.size
     if old_width > old_height:
         diff = int((old_width - old_height)/2)
@@ -101,9 +109,12 @@ def resize_img(img_url, size):
     return resized_img
 
 
-def upload_img(img_url):
+def upload_img(img_url, size):
     req = requests.get(img_url)
-    img = Image.open(BytesIO(req.content))
+    try:
+        img = Image.open(BytesIO(req.content))
+    except OSError:
+        img = Image.new('RGB', size, color='white')
     return img
 
 
