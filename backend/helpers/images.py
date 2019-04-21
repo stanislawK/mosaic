@@ -2,10 +2,9 @@ from io import BytesIO
 from math import ceil, sqrt
 from flask import send_file
 from bs4 import BeautifulSoup
-from PIL import Image, ImageFile
+from PIL import Image
 import requests
 
-ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 img_ext = [
     'BMP',
@@ -21,42 +20,12 @@ img_ext = [
     ]
 
 
-def check_urls(img_urls):
-    """Check if given URL is direct link to img, or the entire collection"""
-    for i, url in enumerate(img_urls):
-        if url.split('.')[-1].upper() not in img_ext:
-            img_urls.remove(url)
-            new_urls = pull_urls(url)
-            j = i
-            for new_url in new_urls:
-                if new_url.split('.')[-1].upper() != 'GIF':
-                    img_urls.insert(j, new_url)
-                    j += 1
-        elif url.split('.')[-1].upper() == 'GIF':
-            img_urls.remove(url)
-    return img_urls
-
-
-def pull_urls(site):
-    """If URL isn't direct image link, pull all image urls from website"""
-    r = requests.get(site)
-    soup = BeautifulSoup(r.text, 'html.parser')
-    img_tags = soup.find_all('img')
-    img_urls = [img.get('src') for img in img_tags]
-
-    # In case of relative image sources
-    for i, url in enumerate(img_urls):
-        if 'http' not in url:
-            img_urls[i] = '{}{}'.format(site, url)
-    return img_urls
-
-
 def create_mosaic(size, img_urls):
     # Create empty, white imegae bord
     mosaic = Image.new('RGB', size, color='white')
     width, height = size
 
-    # Pull all images urls if given url is website isted direct link
+    # Pull all images urls if given url is website instead direct link
     img_urls = check_urls(img_urls)
     imgs_amount = len(img_urls)
 
@@ -97,6 +66,36 @@ def create_mosaic(size, img_urls):
         mosaic.paste(resize_img(pixel[1], pixel_size), pixel[0])
 
     return mosaic
+
+
+def check_urls(img_urls):
+    """Check if given URL is direct link to img, or the entire collection"""
+    for i, url in enumerate(img_urls):
+        if url.split('.')[-1].upper() not in img_ext:
+            img_urls.remove(url)
+            new_urls = pull_urls(url)
+            j = i
+            for new_url in new_urls:
+                if new_url.split('.')[-1].upper() != 'GIF':
+                    img_urls.insert(j, new_url)
+                    j += 1
+        elif url.split('.')[-1].upper() == 'GIF':
+            img_urls.remove(url)
+    return img_urls
+
+
+def pull_urls(site):
+    """If URL isn't direct image link, pull all image urls from website"""
+    r = requests.get(site)
+    soup = BeautifulSoup(r.text, 'html.parser')
+    img_tags = soup.find_all('img')
+    img_urls = [img.get('src') for img in img_tags]
+
+    # In case of relative image sources
+    for i, url in enumerate(img_urls):
+        if 'http' not in url:
+            img_urls[i] = '{}{}'.format(site, url)
+    return img_urls
 
 
 def resize_img(img_url, size):
