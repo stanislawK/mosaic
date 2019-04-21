@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request
+import requests
 
 from backend.helpers.images import create_mosaic, serve_mosaic
 from backend.models import MosaicModel
@@ -28,5 +29,5 @@ def mozaika():
         mosaic = create_mosaic(new_mosaic.resolution, new_mosaic.img_urls)
         return serve_mosaic(mosaic), 200
 
-    except TypeError or ZeroDivisionError:
+    except (TypeError, ZeroDivisionError, requests.exceptions.MissingSchema):
         return jsonify({"msg": URL_NOT_FOUND}), 404
